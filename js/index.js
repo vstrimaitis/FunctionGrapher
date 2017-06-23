@@ -1,20 +1,21 @@
 $(document).ready(function(){
     var graph = new Graph({
         canvasId: "mainCanvas",
-        minX: -5,
-        maxX: 5,
-        minY: -5,
-        maxY: 5,
+        minX: -2,
+        maxX: 2,
+        minY: 0,
+        maxY: 4,
         intersectionX: 0,
         intersectionY: 0,
-        unitsPerTick: 1,
+        unitsPerTick: 0.5,
         drawGrid: true,
         minParam: 0,
         maxParam: 2*Math.PI,
         minAngle: 0,
-        maxAngle: 10*Math.PI
+        maxAngle: 10*Math.PI,
+        numberOfIterations: 10000
     });
-
+    /*
     graph.plot(function(x){ 
         return x/4;
     });
@@ -40,4 +41,12 @@ $(document).ready(function(){
     graph.plotPolar(function(phi){
         return phi/10;
     }, 'blue', 5);
+    */
+    graph.plotPolar(function(t){
+        return (1+0.9*Math.cos(8*t))*(1+0.1*Math.cos(24*t))*(0.9+0.05*Math.cos(200*t))*(1+Math.sin(t));
+    }, 'green', 2);
+
+    /*graph.plotX(function(y){
+        return 3*y*Math.log10(y)-1/36*Math.exp(-Math.pow(36*y-36/Math.E, 4));
+    }, 'pink', 5);*/
 });

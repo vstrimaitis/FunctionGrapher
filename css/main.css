@@ -21,3 +21,12 @@
     font-weight: bold;
     font-style: italic, oblique;
 }
+
+body{
+    background-color: white;
+}
+
+#mainCanvas{
+    background-color: white;
+    border: 3px solid black;
+}
