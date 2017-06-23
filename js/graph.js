@@ -6,7 +6,11 @@ function Graph(options){
     this.maxY = (options.maxY !== undefined) ? options.maxY : 1;
     this.intersectionX = (options.intersectionX !== undefined) ? options.intersectionX : 0;
     this.intersectionY = (options.intersectionY !== undefined) ? options.intersectionY : 0;
-    this.unitsPerTick = options.unitsPerTick || 1;
+    this.unitsPerTick = (options.unitsPerTick !== undefined) ? options.unitsPerTick : 1;
+    this.minParam = (options.minParam !== undefined) ? options.minParam : 0;
+    this.maxParam = (options.minParam !== undefined) ? options.maxParam : 2*Math.PI;
+    this.minAngle = (options.minAngle !== undefined) ? options.minAngle : 0;
+    this.maxAngle = (options.maxAngle !== undefined) ? options.maxAngle : 2*Math.PI;
     this.axisColor = options.axisColor || 'black';
     this.gridColor = options.gridColor || 'grey';
 
@@ -17,6 +21,8 @@ function Graph(options){
     this.yTickSpacing = this.canvas.height / (Math.round((this.maxY - this.minY) / this.unitsPerTick) + 2);
 
     this.dx = (this.maxX - this.minX) / 1000;
+    this.dParam = (this.maxParam - this.minParam) / 1000;
+    this.dAngle = (this.maxAngle - this.minAngle) / 1000;
 
     if(options.drawGrid){
         this.drawGrid();
@@ -154,3 +160,63 @@ Graph.prototype.plot = function(func, color, thickness){
 
     ctx.restore();
 };
+
+Graph.prototype.plotParametric = function(fx, fy, color, thickness){
+    color = color || 'black';
+    thickness = thickness || 1;
+    var ctx = this.canvas.getContext('2d');
+    ctx.save();
+    
+    ctx.save();
+    
+    // move to center and scale plot
+    ctx.beginPath();
+    ctx.translate(this.xToPixels(this.intersectionX), this.yToPixels(this.intersectionY));
+    ctx.scale((this.canvas.width-2*this.xTickSpacing) / (this.maxX-this.minX),
+                -(this.canvas.height-2*this.yTickSpacing)/(this.maxY-this.minY));
+    ctx.moveTo(fx(this.minParam), fy(this.maxParam));
+    for(var t = this.minParam; t <= this.maxParam; t += this.dParam){
+        ctx.lineTo(fx(t), fy(t));
+    }
+    ctx.restore();
+    
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = thickness;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+Graph.prototype.plotPolar = function(fr, color, thickness){
+    color = color || 'black';
+    thickness = thickness || 1;
+    var ctx = this.canvas.getContext('2d');
+    var x = function(phi){
+        return fr(phi)*Math.cos(phi);
+    };
+    var y = function(phi){
+        return fr(phi)*Math.sin(phi);
+    }
+    ctx.save();
+    
+    ctx.save();
+    
+    // move to center and scale plot
+    ctx.beginPath();
+    ctx.translate(this.xToPixels(this.intersectionX), this.yToPixels(this.intersectionY));
+    ctx.scale((this.canvas.width-2*this.xTickSpacing) / (this.maxX-this.minX),
+                -(this.canvas.height-2*this.yTickSpacing)/(this.maxY-this.minY));
+    ctx.moveTo(x(this.minAngle), y(this.maxAngle));
+    for(var a = this.minAngle; a <= this.maxAngle; a += this.dAngle){
+        ctx.lineTo(x(a), y(a));
+    }
+    ctx.restore();
+    
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = thickness;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+
+    ctx.restore();
+}
